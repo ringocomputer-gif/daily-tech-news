@@ -64,6 +64,20 @@ def summarize_with_gemini(articles):
     )
     return response.text
 
+def split_message(text, limit=900):
+    lines = text.split("\n")
+    parts = []
+    current = ""
+    for line in lines:
+        if len(current) + len(line) + 1 > limit:
+            parts.append(current.strip())
+            current = line + "\n"
+        else:
+            current += line + "\n"
+    if current.strip():
+        parts.append(current.strip())
+    return parts
+
 def get_kakao_token():
     resp = requests.post("https://kauth.kakao.com/oauth/token", data={
         "grant_type": "refresh_token",
@@ -76,17 +90,20 @@ def send_kakao(message):
     token = get_kakao_token()
     today = datetime.now().strftime("%m/%d")
     import json
-    template = {
-        "object_type": "text",
-        "text": f"📰 [{today}] 전자IT 뉴스 브리핑\n\n{message}",
-        "link": {}
-    }
-    resp = requests.post(
-        "https://kapi.kakao.com/v2/api/talk/memo/default/send",
-        headers={"Authorization": f"Bearer {token}"},
-        data={"template_object": json.dumps(template)}
-    )
-    print("카카오 전송 결과:", resp.status_code, resp.text)
+    parts = split_message(message)
+    for i, part in enumerate(parts):
+        prefix = f"📰 [{today}] 전자IT 뉴스 브리핑" if i == 0 else f"📰 [{today}] 전자IT 뉴스 브리핑 (계속)"
+        template = {
+            "object_type": "text",
+            "text": f"{prefix}\n\n{part}",
+            "link": {}
+        }
+        resp = requests.post(
+            "https://kapi.kakao.com/v2/api/talk/memo/default/send",
+            headers={"Authorization": f"Bearer {token}"},
+            data={"template_object": json.dumps(template)}
+        )
+        print(f"카카오 전송 결과 ({i+1}/{len(parts)}): {resp.status_code}")
 
 if __name__ == "__main__":
     print("뉴스 수집 중...")
