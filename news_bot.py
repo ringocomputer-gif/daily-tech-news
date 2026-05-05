@@ -8,6 +8,11 @@ RSS_FEEDS = [
     ("ZDNet Korea", "https://zdnet.co.kr/rss/"),
     ("한국경제IT", "https://www.hankyung.com/feed/it"),
     ("전자신문SW", "https://rss.etnews.com/Section902.xml"),
+    ("The Verge", "https://www.theverge.com/rss/index.xml"),
+    ("GSMArena", "https://www.gsmarena.com/rss-news-reviews.php3"),
+    ("AnandTech", "https://www.anandtech.com/rss/"),
+    ("Tom's Hardware", "https://www.tomshardware.com/feeds/all"),
+    ("9to5Mac", "https://9to5mac.com/feed/"),
 ]
 
 def fetch_news():
@@ -35,21 +40,24 @@ def summarize_with_gemini(articles):
         f"[{a['source']}] {a['title']}\n{a['summary']}\n링크: {a['link']}"
         for a in articles
     ])
-    prompt = f"""다음은 어제 하루 동안의 전자IT 뉴스입니다. 핵심 뉴스를 분야별로 정리해주세요.
+    prompt = f"""다음은 어제 하루 동안의 전자IT 뉴스입니다. 핵심 뉴스를 분야별로 한국어로 정리해주세요.
 
 {articles_text}
 
 형식:
-📱 스마트폰/가전
+📱 스마트폰 신제품 & 동향
 - 뉴스 요약 (출처) - 링크
 
-💾 반도체/디스플레이
+💻 컴퓨터 & 부품 신제품 & 동향
 - 뉴스 요약 (출처) - 링크
 
-🤖 AI/소프트웨어
+💾 반도체 & 디스플레이
 - 뉴스 요약 (출처) - 링크
 
-각 분야 3개 이내로, 한 줄 요약으로 작성해주세요."""
+🤖 AI & 소프트웨어
+- 뉴스 요약 (출처) - 링크
+
+각 분야 3개 이내로, 해외 뉴스는 한국어로 번역해서 한 줄 요약으로 작성해주세요."""
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
