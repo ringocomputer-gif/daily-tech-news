@@ -1,6 +1,6 @@
 import os, requests, feedparser
 from datetime import datetime, timedelta
-import google.generativeai as genai
+from google import genai
 
 RSS_FEEDS = [
     ("전자신문", "https://www.etnews.com/rss/allArticle.xml"),
@@ -29,8 +29,7 @@ def fetch_news():
     return articles
 
 def summarize_with_gemini(articles):
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     articles_text = "\n".join([
         f"[{a['source']}] {a['title']}\n{a['summary']}\n링크: {a['link']}"
         for a in articles
@@ -50,7 +49,10 @@ def summarize_with_gemini(articles):
 - 뉴스 요약 (출처) - 링크
 
 각 분야 3개 이내로, 한 줄 요약으로 작성해주세요."""
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
     return response.text
 
 def get_kakao_token():
