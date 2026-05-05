@@ -1,6 +1,6 @@
 import os, requests, feedparser
 from datetime import datetime, timedelta
-from anthropic import Anthropic
+import google.generativeai as genai
 
 RSS_FEEDS = [
     ("전자신문", "https://www.etnews.com/rss/allArticle.xml"),
@@ -28,18 +28,14 @@ def fetch_news():
             print(f"{source} 수집 오류: {e}")
     return articles
 
-def summarize_with_claude(articles):
-    client = Anthropic()
+def summarize_with_gemini(articles):
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    model = genai.GenerativeModel("gemini-1.5-flash")
     articles_text = "\n".join([
         f"[{a['source']}] {a['title']}\n{a['summary']}\n링크: {a['link']}"
         for a in articles
     ])
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1500,
-        messages=[{
-            "role": "user",
-            "content": f"""다음은 어제 하루 동안의 전자IT 뉴스입니다. 핵심 뉴스를 분야별로 정리해주세요.
+    prompt = f"""다음은 어제 하루 동안의 전자IT 뉴스입니다. 핵심 뉴스를 분야별로 정리해주세요.
 
 {articles_text}
 
@@ -54,9 +50,8 @@ def summarize_with_claude(articles):
 - 뉴스 요약 (출처) - 링크
 
 각 분야 3개 이내로, 한 줄 요약으로 작성해주세요."""
-        }]
-    )
-    return response.content[0].text
+    response = model.generate_content(prompt)
+    return response.text
 
 def get_kakao_token():
     resp = requests.post("https://kauth.kakao.com/oauth/token", data={
@@ -92,8 +87,8 @@ if __name__ == "__main__":
     if not articles:
         print("수집된 기사가 없습니다.")
     else:
-        print("Claude로 요약 중...")
-        summary = summarize_with_claude(articles)
+        print("Gemini로 요약 중...")
+        summary = summarize_with_gemini(articles)
         print("카카오톡 전송 중...")
         send_kakao(summary)
         print("완료!")
