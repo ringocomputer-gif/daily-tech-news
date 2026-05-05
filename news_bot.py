@@ -50,7 +50,7 @@ def summarize_with_gemini(articles):
 
 각 분야 3개 이내로, 한 줄 요약으로 작성해주세요."""
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt
     )
     return response.text
