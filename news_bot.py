@@ -72,7 +72,6 @@ def send_kakao(message):
         "object_type": "text",
         "text": f"📰 [{today}] 전자IT 뉴스 브리핑\n\n{message}",
         "link": {}
-        }
     }
     resp = requests.post(
         "https://kapi.kakao.com/v2/api/talk/memo/default/send",
