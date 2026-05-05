@@ -71,9 +71,7 @@ def send_kakao(message):
     template = {
         "object_type": "text",
         "text": f"📰 [{today}] 전자IT 뉴스 브리핑\n\n{message}",
-        "link": {
-            "web_url": "https://www.etnews.com",
-            "mobile_web_url": "https://www.etnews.com"
+        "link": {}
         }
     }
     resp = requests.post(
