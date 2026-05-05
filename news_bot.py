@@ -15,6 +15,15 @@ RSS_FEEDS = [
     ("9to5Mac", "https://9to5mac.com/feed/"),
 ]
 
+def shorten_url(url):
+    try:
+        resp = requests.get(f"https://tinyurl.com/api-create.php?url={url}", timeout=5)
+        if resp.status_code == 200:
+            return resp.text.strip()
+    except:
+        pass
+    return url
+
 def fetch_news():
     yesterday = datetime.now() - timedelta(days=1)
     articles = []
@@ -57,12 +66,21 @@ def summarize_with_gemini(articles):
 🤖 AI & 소프트웨어
 - 뉴스 요약 (출처) - 링크
 
-각 분야 3개 이내로, 해외 뉴스는 한국어로 번역해서 한 줄 요약으로 작성해주세요."""
+각 분야 3개 이내로, 해외 뉴스는 한국어로 번역해서 한 줄 요약으로 작성해주세요.
+링크는 원본 URL을 그대로 넣어주세요."""
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
     )
     return response.text
+
+def shorten_links_in_text(text):
+    import re
+    urls = re.findall(r'https?://\S+', text)
+    for url in urls:
+        short = shorten_url(url)
+        text = text.replace(url, short)
+    return text
 
 def split_message(text, limit=900):
     lines = text.split("\n")
@@ -114,6 +132,8 @@ if __name__ == "__main__":
     else:
         print("Gemini로 요약 중...")
         summary = summarize_with_gemini(articles)
+        print("URL 단축 중...")
+        summary = shorten_links_in_text(summary)
         print("카카오톡 전송 중...")
         send_kakao(summary)
         print("완료!")
