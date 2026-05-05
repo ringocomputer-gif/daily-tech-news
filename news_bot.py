@@ -3,10 +3,11 @@ from datetime import datetime, timedelta
 from google import genai
 
 RSS_FEEDS = [
-    ("전자신문", "https://www.etnews.com/rss/allArticle.xml"),
+    ("전자신문", "https://rss.etnews.com/Section901.xml"),
     ("디일렉", "https://www.thelec.kr/rss/allArticle.xml"),
     ("ZDNet Korea", "https://zdnet.co.kr/rss/"),
-    ("IT조선", "https://it.chosun.com/rss/"),
+    ("한국경제IT", "https://www.hankyung.com/feed/it"),
+    ("전자신문SW", "https://rss.etnews.com/Section902.xml"),
 ]
 
 def fetch_news():
