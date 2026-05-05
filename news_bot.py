@@ -97,7 +97,10 @@ def send_kakao(message):
         template = {
             "object_type": "text",
             "text": f"{prefix}\n\n{part}",
-            "link": {}
+            "link": {
+                "web_url": "https://www.etnews.com",
+                "mobile_web_url": "https://www.etnews.com"
+            }
         }
         resp = requests.post(
             "https://kapi.kakao.com/v2/api/talk/memo/default/send",
